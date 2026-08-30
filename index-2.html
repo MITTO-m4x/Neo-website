@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Neo Studio by MITTO — Digital projects, creative systems, and experimental technology." />
+  <title>Neo Studio — By MITTO</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23000'/><text x='16' y='22' text-anchor='middle' font-family='Georgia' font-size='16' font-style='italic' fill='%23fff'>N</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://assets.mixkit.co" crossorigin />
+  <link rel="preconnect" href="https://cdn.discordapp.com" crossorigin />
+  <link rel="dns-prefetch" href="https://discord.com" />
+  <!-- Font 4: Fraunces + Outfit -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Fraunces"', 'Georgia', 'serif'],
+            sans: ['Outfit', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Outfit', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(255,255,255,0.2); color: #fff; }
+    .liquid-glass {
+      background: rgba(255,255,255,0.025);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.08);
+    }
+    .liquid-glass-strong {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.12);
+    }
+    .video-mono { filter: grayscale(100%) contrast(1.08); }
+    .img-mono { filter: grayscale(100%) contrast(1.05); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    /* Placeholder image style when no custom image */
+    .media-placeholder {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%),
+        linear-gradient(225deg, rgba(255,255,255,0.03) 0%, transparent 40%),
+        #0a0a0a;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+    const { motion, AnimatePresence, useInView } = Motion;
+
+    const DISCORD_URL = 'https://discord.gg/YbDMqpAr3a';
+
+    /*
+     * ═══════════════════════════════════════════════════════════
+     *  DISCORD SERVER + STAFF
+     *  1) فعّل Server Widget من إعدادات السيرفر → Engagement
+     *  2) انسخ Server ID وحطه تحت
+     *  3) ضيف المساعدين باليوزرنيم (والرتبة اختياري)
+     * ═══════════════════════════════════════════════════════════
+     */
+    const DISCORD_SERVER_ID = '1490372478541889596';  // Neo Studio Discord
+
+    // المساعدين — ضيف يوزرنيم الديسكورد بس
+    // avatar: رابط صورة اختياري (أو سيبه فاضي)
+    const STAFF = [
+      // حط رابط صورة الديسكورد في avatar: 'الرابط'
+      // مثال: avatar: 'https://cdn.discordapp.com/avatars/ID/HASH.png?size=256'
+      {
+        username: 'eldod.98',
+        display: 'daii',
+        role: 'Assistant',
+        id: '1334857292775952404',
+        avatar: 'https://cdn.discordapp.com/avatars/1334857292775952404/a85c821e82dd2b33f08c70e1b36b8583.png?size=1024',  // ← رابط صورة daii
+      },
+      {
+        username: '_simply.salem',
+        display: 'Sxlem',
+        role: 'Assistant',
+        id: '979397390131937341',
+        avatar: 'https://cdn.discordapp.com/avatars/979397390131937341/37eb916d3eba7ecdfa54f2a10ae1d3a4.png?size=1024',  // ← رابط صورة Sxlem
+      },
+      {
+        username: 'destinati0_n',
+        display: 'Destinati0n',
+        role: 'Assistant',
+        id: '1539935086529618044',  // ← User ID لو عندك
+        avatar: 'https://cdn.discordapp.com/avatars/1539935086529618044/fa9af5017a373911f491e0e9b4217925.png?size=1024',  // ← رابط صورة Destinati0n
+      },
+      {
+        username: '613s.',
+        display: 'x',
+        role: 'Assistant',
+        id: '877632394260254720',
+        avatar: 'https://cdn.discordapp.com/avatars/877632394260254720/0249e9c06b2ab9390b26e5e9926ea9e1.png?size=1024',  // ← رابط صورة x
+      },
+      {
+        username: 'vivacious_possum_41832',
+        display: 'vivacious_possum_41832',
+        role: 'Assistant',
+        id: '',  // ← User ID لو عندك
+        avatar: '',  // ← رابط الصورة
+      },
+      {
+        username: '_czde',
+        display: 'Nox Ø',
+        role: 'Assistant',
+        id: '750721222014140507',
+        avatar: 'https://cdn.discordapp.com/avatars/750721222014140507/a096588ca09017648d6eb12a95bd833b.png?size=1024',  // ← رابط صورة Nox
+      },
+    ];
+
+    const EVADE_SCRIPT = 'https://raw.githubusercontent.com/MITTO-m4x/Hyper_M4X_EVA/refs/heads/main/Hyper_EVADE.lua';
+
+    /*
+     * ═══════════════════════════════════════════════════════════
+     *  VIDEOS — غيّر اللينكات هنا
+     *  hero = أول فيديو (أول حاجة في الصفحة)
+     * ═══════════════════════════════════════════════════════════
+     */
+    const VIDEOS = {
+      // فيديوهات أخف/مختلفة — غيّر اللينك في أي وقت
+      hero:  'https://assets.mixkit.co/videos/45020/45020-720.mp4',
+      break: 'https://assets.mixkit.co/videos/31548/31548-720.mp4',
+      final: 'https://assets.mixkit.co/videos/31548/31548-720.mp4',
+      about: 'https://assets.mixkit.co/videos/45020/45020-720.mp4',
+    };
+
+    /*
+     * ═══════════════════════════════════════════════════════════
+     *  PROJECT IMAGES — حط صور مشاريعك هنا
+     *  سيّبها فاضية "" عشان يظهر placeholder
+     *  أو حط مسار زي: 'images/neo-evade.jpg'
+     * ═══════════════════════════════════════════════════════════
+     */
+    const PROJECT_IMAGES = {
+      // حط رابط الصورة كامل (GitHub raw / أي CDN)
+      // مثال: 'https://raw.githubusercontent.com/USER/REPO/main/image.png'
+      evade:     'https://tr.rbxcdn.com/180DAY-1365aa6b6a73daf189f6be9ffffaa44f/768/432/Image/Webp/noFilter',  // Neo-EVADE banner
+      fats:      'https://tr.rbxcdn.com/180DAY-20254f91c5043de87f6cc8adb218c624/768/432/Image/Webp/noFilter',  // Neo-FATS banner
+      bladeBall: 'https://tr.rbxcdn.com/180DAY-be150ba07c74cd57deb31791c2675323/768/432/Image/Webp/noFilter',  // Neo-Blade-Ball banner
+      universal: 'https://tr.rbxcdn.com/180DAY-1ad3c5d702b2aefbdfb08bacb113890d/768/432/Image/Png/noFilter',  // Neo-Universal banner
+    };
+
+    /*
+     * ═══════════════════════════════════════════════════════════
+     *  PROFILE — صورتك وبياناتك
+     * ═══════════════════════════════════════════════════════════
+     */
+    const PROFILE = {
+      photo: 'https://raw.githubusercontent.com/MITTO-m4x/Neo_EVADE/refs/heads/main/file_00000000954c824688d64eab7e51def2.png',
+      name: 'MITTO',
+      title: 'Founder · Neo Studio',
+      role: 'Creative Technology Studio',
+      philosophy: 'BUILD. CREATE. EVOLVE.',
+      focus: 'Digital projects · Systems · Tools · Experiments',
+    };
+
+    /* ─── FadingVideo ─── */
+    function FadingVideo({ src, className = '', lazy = false }) {
+      const videoRef = useRef(null);
+      const rafRef = useRef(null);
+      const isFadingRef = useRef(false);
+      const mountedRef = useRef(true);
+      const [activeSrc, setActiveSrc] = useState(lazy ? null : src);
+
+      const cancelFade = useCallback(() => {
+        if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+        isFadingRef.current = false;
+      }, []);
+
+      const fadeTo = useCallback((targetOpacity, duration = 400) => {
+        const video = videoRef.current;
+        if (!video || !mountedRef.current) return;
+        cancelFade();
+        isFadingRef.current = true;
+        const startOpacity = parseFloat(video.style.opacity || '1');
+        const startTime = performance.now();
+        const animate = (now) => {
+          if (!mountedRef.current || !video) return;
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+          video.style.opacity = String(startOpacity + (targetOpacity - startOpacity) * eased);
+          if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+          else { isFadingRef.current = false; rafRef.current = null; }
+        };
+        rafRef.current = requestAnimationFrame(animate);
+      }, [cancelFade]);
+
+      useEffect(() => {
+        mountedRef.current = true;
+        const video = videoRef.current;
+        if (!video) return;
+
+        // Lazy: only assign src when in view (faster first paint)
+        let observer;
+        if (lazy && 'IntersectionObserver' in window) {
+          observer = new IntersectionObserver(
+            ([entry]) => {
+              if (entry.isIntersecting) {
+                setActiveSrc(src);
+                observer.disconnect();
+              }
+            },
+            { rootMargin: '200px', threshold: 0.01 }
+          );
+          observer.observe(video);
+        } else if (!lazy) {
+          setActiveSrc(src);
+        }
+
+        return () => {
+          mountedRef.current = false;
+          cancelFade();
+          if (observer) observer.disconnect();
+        };
+      }, [src, lazy, cancelFade]);
+
+      useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !activeSrc) return;
+        video.style.opacity = '1';
+
+        const onTimeUpdate = () => {
+          if (!video.duration || isFadingRef.current) return;
+          if (video.duration - video.currentTime <= 0.55 && video.duration - video.currentTime > 0) fadeTo(0, 400);
+        };
+        const onEnded = () => {
+          cancelFade();
+          video.currentTime = 0;
+          video.play().catch(() => {});
+          requestAnimationFrame(() => { if (mountedRef.current) fadeTo(1, 400); });
+        };
+        const onLoaded = () => video.play().catch(() => {});
+
+        video.addEventListener('timeupdate', onTimeUpdate);
+        video.addEventListener('ended', onEnded);
+        video.addEventListener('loadeddata', onLoaded);
+        video.play().catch(() => {});
+
+        return () => {
+          video.removeEventListener('timeupdate', onTimeUpdate);
+          video.removeEventListener('ended', onEnded);
+          video.removeEventListener('loadeddata', onLoaded);
+          video.pause();
+        };
+      }, [activeSrc, fadeTo, cancelFade]);
+
+      return (
+        <video
+          ref={videoRef}
+          src={activeSrc || undefined}
+          className={`video-mono absolute inset-0 w-full h-full object-cover ${className}`}
+          autoPlay
+          muted
+          playsInline
+          preload={lazy ? 'none' : 'metadata'}
+          loop={false}
+          style={{ opacity: 1, background: '#000' }}
+        />
+      );
+    }
+
+    function DiscordIcon({ className }) {
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+        </svg>
+      );
+    }
+
+    /* ─── Navbar ─── */
+    function Navbar() {
+      const [scrolled, setScrolled] = useState(false);
+      const [open, setOpen] = useState(false);
+      const links = [
+        { label: 'Home', href: '#home' },
+        { label: 'Profile', href: '#profile' },
+        { label: 'Projects', href: '#projects' },
+        { label: 'About', href: '#about' },
+        { label: 'Studio', href: '#studio' },
+      ];
+      useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 40);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+      }, []);
+      useEffect(() => {
+        document.body.style.overflow = open ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+      }, [open]);
+
+      return (
+        <>
+          <motion.header
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'py-3' : 'py-5'}`}
+          >
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <nav className={`flex items-center justify-between rounded-2xl px-4 sm:px-6 py-3 transition-all duration-300 ${scrolled || open ? 'liquid-glass-strong' : 'bg-transparent border border-transparent'}`}>
+                <a href="#home" className="flex flex-col leading-none group" onClick={() => setOpen(false)}>
+                  <span className="font-serif text-lg sm:text-xl tracking-wide text-white group-hover:opacity-80 transition-opacity">NEO STUDIO</span>
+                  <span className="text-[10px] tracking-[0.25em] text-white/50 uppercase mt-0.5">By MITTO</span>
+                </a>
+                <div className="hidden md:flex items-center gap-7">
+                  {links.map((l) => (
+                    <a key={l.href} href={l.href} className="text-sm font-medium text-white/70 hover:text-white transition-colors tracking-wide">{l.label}</a>
+                  ))}
+                </div>
+                <div className="flex items-center gap-3">
+                  <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition-colors">
+                    <DiscordIcon className="w-4 h-4" /> Discord
+                  </a>
+                  <button type="button" aria-label="Menu" className="md:hidden flex items-center justify-center w-10 h-10 rounded-full liquid-glass text-white text-lg" onClick={() => setOpen((v) => !v)}>
+                    {open ? '✕' : '☰'}
+                  </button>
+                </div>
+              </nav>
+            </div>
+          </motion.header>
+          <AnimatePresence>
+            {open && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl md:hidden">
+                <div className="flex flex-col items-center justify-center h-full gap-8 pt-20">
+                  {links.map((l, i) => (
+                    <motion.a key={l.href} href={l.href} onClick={() => setOpen(false)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i }} className="font-serif text-3xl text-white italic">{l.label}</motion.a>
+                  ))}
+                  <motion.a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4 inline-flex items-center gap-2 rounded-full bg-white text-black px-6 py-3 text-base font-medium">
+                    <DiscordIcon className="w-5 h-5" /> Join Discord
+                  </motion.a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      );
+    }
+
+    /* ─── Hero ─── */
+    const fadeUp = {
+      hidden: { opacity: 0, filter: 'blur(10px)', y: 20 },
+      visible: (i = 0) => ({
+        opacity: 1, filter: 'blur(0px)', y: 0,
+        transition: { duration: 0.8, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] },
+      }),
+    };
+
+    function Hero() {
+      return (
+        <section id="home" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <FadingVideo src={VIDEOS.hero} />
+            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
+            <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="inline-flex items-center gap-2 rounded-full liquid-glass px-4 py-1.5 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span className="text-xs tracking-[0.2em] uppercase text-white/80">Neo Studio</span>
+            </motion.div>
+            <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl italic leading-[1.05] tracking-tight text-white">
+              Neo Hyper Studio<br />Presented to you.
+            </motion.h1>
+            <motion.p custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mt-6 sm:mt-8 max-w-xl mx-auto text-base sm:text-lg text-white/60 font-light leading-relaxed">
+              Digital projects, creative systems, and experimental technology — built by Neo Studio.
+            </motion.p>
+            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a href="#projects" className="group inline-flex items-center gap-2 rounded-full bg-white text-black px-7 py-3.5 text-sm font-medium tracking-wide hover:bg-white/90 transition-all">
+                Explore Projects <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+              </a>
+              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 rounded-full liquid-glass px-7 py-3.5 text-sm font-medium tracking-wide text-white hover:bg-white/10 transition-all">
+                Join Discord <span className="inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+              </a>
+            </motion.div>
+          </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+            <span className="text-[10px] tracking-[0.3em] uppercase text-white/40">Scroll</span>
+            <div className="w-px h-10 bg-gradient-to-b from-white/40 to-transparent" />
+          </motion.div>
+        </section>
+      );
+    }
+
+    /* ─── Stats strip ─── */
+    function Stats() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-40px' });
+      const items = [
+        { num: '04', label: 'Active Projects' },
+        { num: '∞', label: 'Experiments' },
+        { num: '01', label: 'Community' },
+        { num: '24/7', label: 'Building' },
+      ];
+      return (
+        <section className="border-y border-white/8 bg-[#050505] py-10 sm:py-12" ref={ref}>
+          <div className="mx-auto max-w-6xl px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {items.map((it, i) => (
+              <motion.div key={it.label} initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.5 }} className="text-center">
+                <p className="font-serif text-3xl sm:text-4xl italic text-white">{it.num}</p>
+                <p className="mt-1 text-xs tracking-[0.2em] uppercase text-white/40">{it.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+
+    /* ─── Profile Banner ─── */
+    function ProfileBanner() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-60px' });
+      return (
+        <section id="profile" className="relative py-20 sm:py-28 bg-[#050505] border-y border-white/8 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none opacity-[0.15]">
+            <div className="absolute -top-24 right-0 w-[420px] h-[420px] rounded-full bg-white/10 blur-[120px]" />
+            <div className="absolute bottom-0 left-0 w-[280px] h-[280px] rounded-full bg-white/5 blur-[100px]" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-5xl px-6" ref={ref}>
+            <motion.div
+              initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
+              animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              className="liquid-glass-strong rounded-3xl p-8 sm:p-10 md:p-12"
+            >
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
+                {/* Photo */}
+                <div className="relative shrink-0">
+                  <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden border border-white/20 shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_20px_50px_rgba(0,0,0,0.5)]">
+                    <img
+                      src={PROFILE.photo}
+                      alt={PROFILE.name}
+                      loading="eager"
+                      decoding="async"
+                      className="w-full h-full object-cover img-mono"
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                    <span className="w-2.5 h-2.5 rounded-full bg-black" />
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 text-center md:text-left min-w-0">
+                  <p className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">Neo Studio · By MITTO</p>
+                  <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl italic text-white tracking-tight leading-none">
+                    {PROFILE.name}
+                  </h2>
+                  <p className="mt-3 text-base sm:text-lg text-white/55 font-light">{PROFILE.title}</p>
+
+                  <div className="mt-6 h-px w-12 bg-white/25 mx-auto md:mx-0" />
+
+                  <div className="mt-6 space-y-2 text-sm sm:text-base text-white/55 font-light">
+                    <p><span className="text-white/35">Role</span> · {PROFILE.role}</p>
+                    <p><span className="text-white/35">Philosophy</span> · <span className="text-white/85 tracking-wide">{PROFILE.philosophy}</span></p>
+                    <p><span className="text-white/35">Focus</span> · {PROFILE.focus}</p>
+                  </div>
+
+                  <div className="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                    <a
+                      href={DISCORD_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-white text-black px-5 py-2.5 text-xs font-medium tracking-wide hover:bg-white/90 transition-colors"
+                    >
+                      <DiscordIcon className="w-4 h-4" />
+                      Discord
+                    </a>
+                    <a
+                      href="#projects"
+                      className="inline-flex items-center gap-2 rounded-full liquid-glass px-5 py-2.5 text-xs font-medium tracking-wide text-white hover:bg-white/10 transition-colors"
+                    >
+                      View Projects →
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project chips */}
+              <div className="mt-10 pt-8 border-t border-white/10">
+                <p className="text-[10px] tracking-[0.25em] uppercase text-white/30 mb-4 text-center md:text-left">Active line</p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                  {['Neo-EVADE', 'Neo-FATS', 'Neo-Blade-Ball', 'Neo-Universal'].map((name) => (
+                    <span
+                      key={name}
+                      className="text-[11px] tracking-[0.08em] text-white/60 border border-white/12 rounded-full px-3.5 py-1.5 hover:border-white/30 hover:text-white transition-colors"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Projects ─── */
+    const projects = [
+      {
+        id: '01',
+        name: 'Neo-EVADE',
+        key: 'evade',
+        description: 'Advanced Roblox system developed by Neo Studio. Focused on evasion mechanics and fluid interaction design.',
+        longDescription: 'Neo-EVADE is an advanced Roblox system focused on evasion mechanics, fluid movement, and responsive interaction design. Built and maintained by Neo Studio.',
+        status: 'ACTIVE',
+        category: ['ROBLOX', 'SYSTEM'],
+        projectUrl: '',
+        scriptUrl: 'https://raw.githubusercontent.com/MITTO-m4x/Hyper_M4X_EVA/refs/heads/main/Hyper_EVADE.lua',
+      },
+      {
+        id: '02',
+        name: 'Neo-FATS',
+        key: 'fats',
+        description: 'Technical interface and data-oriented system experiment. Clean architecture for complex workflows.',
+        longDescription: 'Neo-FATS is a technical interface and data-oriented system experiment with clean architecture for complex workflows.',
+        status: 'ACTIVE',
+        category: ['SYSTEM', 'INTERFACE'],
+        projectUrl: '',
+        scriptUrl: 'https://raw.githubusercontent.com/MITTO-m4x/Neo-FATS/refs/heads/main/Neo-FATS.lua',
+      },
+      {
+        id: '03',
+        name: 'Neo-Blade-Ball',
+        key: 'bladeBall',
+        description: 'Dynamic geometric interaction project exploring fast motion, precision, and responsive feedback loops.',
+        longDescription: 'Neo-Blade-Ball explores dynamic geometric interaction, fast motion, precision, and responsive feedback loops.',
+        status: 'ACTIVE',
+        category: ['GAME', 'EXPERIMENT'],
+        projectUrl: '',
+        scriptUrl: 'https://raw.githubusercontent.com/MITTO-m4x/Neo-Blade-Ball/refs/heads/main/Neo-Blade-Ball.lua',
+      },
+      {
+        id: '04',
+        name: 'Neo-Universal',
+        key: 'universal',
+        description: 'Large-scale abstract digital environment and unified system layer for future Neo Studio projects.',
+        longDescription: 'Neo-Universal is a large-scale system layer and unified environment designed for future Neo Studio projects.',
+        status: 'ACTIVE',
+        category: ['PLATFORM', 'CORE'],
+        projectUrl: '',
+        scriptUrl: 'https://raw.githubusercontent.com/MITTO-m4x/Neo-Universal/refs/heads/main/Neo-Universal.lua',
+      },
+    ];
+
+    function ProjectMedia({ imageSrc, name }) {
+      // لو فيه صورة → اعرضها، لو لأ → placeholder جاهز تحط مكانه صورة
+      if (imageSrc) {
+        return (
+          <img
+            src={imageSrc}
+            alt={name}
+            className="absolute inset-0 w-full h-full object-cover img-mono scale-100 group-hover:scale-105 transition-transform duration-700"
+          />
+        );
+      }
+      return (
+        <div className="absolute inset-0 media-placeholder flex flex-col items-center justify-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </div>
+          <p className="text-[11px] tracking-[0.15em] uppercase text-white/30 text-center px-4">
+            ضع صورة المشروع هنا<br />
+            <span className="text-white/20 normal-case tracking-normal">PROJECT_IMAGES → {name}</span>
+          </p>
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-28 h-28 border border-white/25 rounded-full group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute bottom-1/3 right-1/4 w-16 h-16 border border-white/15 rotate-45 group-hover:rotate-90 transition-transform duration-700" />
+          </div>
+        </div>
+      );
+    }
+
+    function ProjectModal({ project, image, onClose }) {
+      const [copied, setCopied] = useState(false);
+      const loadstringCode = project?.scriptUrl
+        ? `loadstring(game:HttpGet("${project.scriptUrl}"))()`
+        : '';
+
+      useEffect(() => {
+        if (!project) return;
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', onKey);
+        return () => {
+          document.body.style.overflow = '';
+          window.removeEventListener('keydown', onKey);
+        };
+      }, [project, onClose]);
+
+      useEffect(() => {
+        setCopied(false);
+      }, [project]);
+
+      if (!project) return null;
+
+      const copyCode = async () => {
+        if (!loadstringCode) return;
+        try {
+          await navigator.clipboard.writeText(loadstringCode);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = loadstringCode;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-white/15 bg-[#0a0a0a] shadow-2xl"
+          >
+            <div className="relative h-40 sm:h-48 bg-[#111] overflow-hidden">
+              {image ? (
+                <img src={image} alt={project.name} className="absolute inset-0 w-full h-full object-cover img-mono" />
+              ) : (
+                <div className="absolute inset-0 media-placeholder" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-black/30" />
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full liquid-glass flex items-center justify-center text-white/80 hover:text-white text-lg"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 sm:p-8 pt-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] tracking-[0.25em] text-white/40">{project.id}</p>
+                  <h3 className="font-serif text-3xl sm:text-4xl italic text-white mt-1">{project.name}</h3>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-white text-black text-[10px] font-semibold tracking-wider px-3 py-1 uppercase shrink-0">
+                  {project.status}
+                </span>
+              </div>
+
+              <p className="mt-4 text-sm sm:text-base text-white/55 font-light leading-relaxed">
+                {project.longDescription || project.description}
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                {(project.category || []).map((c) => (
+                  <span key={c} className="text-[10px] tracking-[0.15em] uppercase text-white/40 border border-white/15 rounded-full px-2.5 py-1">{c}</span>
+                ))}
+                <span className="text-[10px] tracking-[0.15em] uppercase text-white/40 border border-white/15 rounded-full px-2.5 py-1">NEO STUDIO</span>
+              </div>
+
+              {/* loadstring code box */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/35">Script</p>
+                  {loadstringCode ? (
+                    <button
+                      type="button"
+                      onClick={copyCode}
+                      className="text-[10px] tracking-[0.15em] uppercase text-white/50 hover:text-white transition-colors"
+                    >
+                      {copied ? 'Copied ✓' : 'Copy'}
+                    </button>
+                  ) : null}
+                </div>
+                {loadstringCode ? (
+                  <div className="rounded-2xl border border-white/12 bg-black px-4 py-4 overflow-x-auto">
+                    <pre className="text-[11px] sm:text-xs text-white/75 font-mono leading-relaxed whitespace-pre-wrap break-all m-0">
+{loadstringCode}
+                    </pre>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-white/15 px-4 py-6 text-center text-xs text-white/35">
+                    حط scriptUrl في بيانات المشروع
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-2">
+                <div className="flex justify-between text-sm gap-4">
+                  <span className="text-white/40">Status</span>
+                  <span className="text-white/80">{project.status}</span>
+                </div>
+                <div className="flex justify-between text-sm gap-4">
+                  <span className="text-white/40">Studio</span>
+                  <span className="text-white/80">Neo Studio</span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3">
+                {loadstringCode ? (
+                  <button
+                    type="button"
+                    onClick={copyCode}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-black px-5 py-3 text-sm font-medium tracking-wide hover:bg-white/90 transition-colors"
+                  >
+                    {copied ? 'Copied to clipboard' : 'Copy loadstring'}
+                  </button>
+                ) : null}
+                {project.scriptUrl ? (
+                  <a
+                    href={project.scriptUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full liquid-glass px-5 py-3 text-sm font-medium tracking-wide text-white hover:bg-white/10 transition-colors"
+                  >
+                    Open raw script ↗
+                  </a>
+                ) : null}
+                {project.projectUrl ? (
+                  <a
+                    href={project.projectUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-medium tracking-wide text-white/70 hover:text-white hover:border-white/30 transition-colors"
+                  >
+                    Open Project ↗
+                  </a>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-xs text-white/40 hover:text-white/70 py-2 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
+
+    function ProjectCard({ project, index, onOpen }) {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-80px' });
+      const img = PROJECT_IMAGES[project.key] || '';
+
+      return (
+        <motion.article
+          ref={ref}
+          initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+          animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
+          transition={{ duration: 0.7, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          className="group relative"
+        >
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 liquid-glass transition-all duration-500 hover:border-white/25 hover:bg-white/[0.04]">
+            <div className="flex items-start justify-between p-6 sm:p-8 pb-4">
+              <div>
+                <span className="text-xs tracking-[0.25em] text-white/40 font-medium">{project.id}</span>
+                <h3 className="mt-2 font-serif text-2xl sm:text-3xl md:text-4xl italic text-white tracking-tight">{project.name}</h3>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-white text-black text-[10px] font-semibold tracking-wider px-3 py-1 uppercase">{project.status}</span>
+            </div>
+
+            <button type="button" onClick={() => onOpen(project)} className="relative mx-6 sm:mx-8 h-52 sm:h-64 md:h-80 rounded-xl overflow-hidden border border-white/8 bg-[#0a0a0a] w-[calc(100%-3rem)] sm:w-[calc(100%-4rem)] block text-left cursor-pointer">
+              <ProjectMedia imageSrc={img} name={project.name} />
+              <div className="absolute inset-0 bg-black/15 group-hover:bg-black/5 transition-colors duration-500 pointer-events-none" />
+            </button>
+
+            <div className="p-6 sm:p-8 pt-5">
+              <p className="text-sm sm:text-base text-white/55 font-light leading-relaxed max-w-2xl">{project.description}</p>
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                {project.category.map((c) => (
+                  <span key={c} className="text-[10px] tracking-[0.15em] uppercase text-white/40 border border-white/15 rounded-full px-2.5 py-1">{c}</span>
+                ))}
+                <span className="text-[10px] tracking-[0.15em] uppercase text-white/40 border border-white/15 rounded-full px-2.5 py-1">NEO STUDIO</span>
+              </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => onOpen(project)}
+                  className="group/btn inline-flex items-center gap-2 rounded-full liquid-glass px-5 py-2.5 text-xs font-medium tracking-wide text-white hover:bg-white/10 transition-all"
+                >
+                  View Project <span className="inline-block transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5">↗</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpen(project)}
+                  className="inline-flex items-center gap-2 rounded-full bg-white text-black px-5 py-2.5 text-xs font-medium tracking-wide hover:bg-white/90 transition-colors"
+                >
+                  Get Script
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.article>
+      );
+    }
+
+    function Projects() {
+      const headerRef = useRef(null);
+      const headerInView = useInView(headerRef, { once: true, margin: '-60px' });
+      const [active, setActive] = useState(null);
+
+      return (
+        <section id="projects" className="relative py-24 sm:py-32 bg-[#000]">
+          <div className="mx-auto max-w-6xl px-6">
+            <motion.div ref={headerRef} initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }} animate={headerInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}} transition={{ duration: 0.7 }} className="mb-16 sm:mb-20">
+              <p className="text-xs tracking-[0.25em] uppercase text-white/40 mb-4">Portfolio</p>
+              <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl italic text-white tracking-tight">Selected Projects</h2>
+              <p className="mt-4 max-w-xl text-white/50 font-light text-base sm:text-lg">A collection of systems, experiments, and digital projects created by Neo Studio.</p>
+            </motion.div>
+            <div className="flex flex-col gap-10 sm:gap-14">
+              {projects.map((p, i) => (
+                <ProjectCard key={p.id} project={p} index={i} onOpen={setActive} />
+              ))}
+            </div>
+          </div>
+          <AnimatePresence>
+            {active && (
+              <ProjectModal
+                project={active}
+                image={PROJECT_IMAGES[active.key] || ''}
+                onClose={() => setActive(null)}
+              />
+            )}
+          </AnimatePresence>
+        </section>
+      );
+    }
+
+    /* ─── About ─── */
+    function About() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-80px' });
+      const values = [
+        { title: 'BUILD', description: 'Turning ideas into working projects.' },
+        { title: 'EXPERIMENT', description: 'Trying new systems, designs, and concepts.' },
+        { title: 'EVOLVE', description: 'Continuously improving everything we create.' },
+      ];
+      return (
+        <section id="about" className="relative py-24 sm:py-32 bg-[#000] overflow-hidden">
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <FadingVideo src={VIDEOS.about} lazy />
+            <div className="absolute inset-0 bg-black/80" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-6xl px-6" ref={ref}>
+            <motion.div initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }} animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}} transition={{ duration: 0.7 }} className="max-w-3xl">
+              <p className="text-xs tracking-[0.25em] uppercase text-white/40 mb-4">About</p>
+              <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl italic text-white tracking-tight">Built by curiosity.</h2>
+              <p className="mt-6 text-base sm:text-lg text-white/55 font-light leading-relaxed">
+                Neo Studio is an independent creative technology studio focused on building experimental projects, systems, tools, and digital experiences.
+              </p>
+              <div className="mt-8 space-y-1 text-white/70 font-light text-base sm:text-lg">
+                <p>We experiment.</p><p>We build.</p><p>We improve.</p><p>We release.</p>
+              </div>
+            </motion.div>
+            <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {values.map((v, i) => (
+                <motion.div key={v.title} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay: 0.15 + i * 0.1 }} className="liquid-glass rounded-2xl p-6 sm:p-7 hover:bg-white/[0.04] transition-colors duration-300">
+                  <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center mb-5">
+                    <span className="text-[10px] text-white/60 font-medium">{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl italic text-white tracking-tight">{v.title}</h3>
+                  <p className="mt-3 text-sm text-white/50 font-light leading-relaxed">{v.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Process ─── */
+    function Process() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-60px' });
+      const steps = [
+        { n: '01', t: 'Idea', d: 'Capture the concept and define the system boundaries.' },
+        { n: '02', t: 'Prototype', d: 'Ship a working core fast — test motion, logic, feel.' },
+        { n: '03', t: 'Refine', d: 'Polish interfaces, performance, and edge cases.' },
+        { n: '04', t: 'Release', d: 'Publish, document, and keep evolving in public.' },
+      ];
+      return (
+        <section className="py-24 sm:py-28 bg-[#050505] border-y border-white/8">
+          <div className="mx-auto max-w-6xl px-6" ref={ref}>
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} className="mb-14">
+              <p className="text-xs tracking-[0.25em] uppercase text-white/40 mb-4">Method</p>
+              <h2 className="font-serif text-3xl sm:text-5xl italic text-white">How we work</h2>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {steps.map((s, i) => (
+                <motion.div key={s.n} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.5 }} className="liquid-glass rounded-2xl p-6">
+                  <p className="text-xs tracking-[0.2em] text-white/35">{s.n}</p>
+                  <h3 className="font-serif text-2xl italic text-white mt-3">{s.t}</h3>
+                  <p className="mt-3 text-sm text-white/45 font-light leading-relaxed">{s.d}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Cinematic Break ─── */
+    function CinematicBreak() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-100px' });
+      return (
+        <section id="studio" className="relative min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <FadingVideo src={VIDEOS.break} lazy />
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-4xl px-6 text-center" ref={ref}>
+            <motion.h2 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }} animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}} transition={{ duration: 0.8 }} className="font-serif text-3xl sm:text-5xl md:text-6xl italic text-white tracking-tight">
+              Nothing stays the same.
+            </motion.h2>
+            <motion.p initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay: 0.15 }} className="mt-5 text-base sm:text-lg text-white/55 font-light">
+              Neo Studio is always building the next thing.
+            </motion.p>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Community: Discord + Staff ─── */
+    function CommunitySection() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-80px' });
+      const [stats, setStats] = useState({
+        name: null,
+        total: null,
+        online: null,
+        offline: null,
+      });
+
+      useEffect(() => {
+        let cancelled = false;
+        const inviteCode = (DISCORD_URL.split('/').pop() || '').split('?')[0];
+        fetch(`https://discord.com/api/v10/invites/${inviteCode}?with_counts=true`)
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((data) => {
+            if (cancelled) return;
+            const total = data.approximate_member_count ?? null;
+            const online = data.approximate_presence_count ?? null;
+            const offline =
+              total !== null && online !== null ? Math.max(total - online, 0) : null;
+            setStats({
+              name: data.guild?.name || null,
+              total,
+              online,
+              offline,
+            });
+          })
+          .catch(() => {});
+        return () => { cancelled = true; };
+      }, []);
+
+      const total = stats.total || 0;
+      const online = stats.online || 0;
+      const offline = stats.offline || 0;
+      const onlinePct = total > 0 ? Math.round((online / total) * 100) : 0;
+      const offlinePct = total > 0 ? Math.round((offline / total) * 100) : 0;
+
+      // Simple visual bars (relative scale for chart aesthetic)
+      const maxBar = Math.max(total, online, offline, 1);
+
+      return (
+        <section id="community" className="relative py-24 sm:py-32 bg-[#000]">
+          <div className="mx-auto max-w-6xl px-6" ref={ref}>
+            <motion.div
+              initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+              animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-14"
+            >
+              <p className="text-xs tracking-[0.25em] uppercase text-white/40 mb-4">Community</p>
+              <h2 className="font-serif text-3xl sm:text-5xl italic text-white tracking-tight">Discord & Team</h2>
+              <p className="mt-5 max-w-lg mx-auto text-base sm:text-lg text-white/50 font-light">
+                Live server numbers from Discord — and the assistants behind Neo Studio.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              {/* Stats + chart */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.1, duration: 0.55 }}
+                className="liquid-glass-strong rounded-3xl p-6 sm:p-8"
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-11 h-11 rounded-xl liquid-glass flex items-center justify-center">
+                    <DiscordIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">
+                      {stats.name || 'Neo Studio Discord'}
+                    </p>
+                    <p className="text-xs text-white/40 mt-0.5">Live from Discord API</p>
+                  </div>
+                </div>
+
+                {/* Three numbers */}
+                <div className="grid grid-cols-3 gap-3 mb-8">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center">
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-white/35">Members</p>
+                    <p className="mt-1 font-serif text-2xl sm:text-3xl italic text-white">
+                      {stats.total !== null ? stats.total.toLocaleString() : '—'}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center">
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-white/35">Online</p>
+                    <p className="mt-1 font-serif text-2xl sm:text-3xl italic text-white">
+                      {stats.online !== null ? stats.online.toLocaleString() : '—'}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center">
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-white/35">Offline</p>
+                    <p className="mt-1 font-serif text-2xl sm:text-3xl italic text-white">
+                      {stats.offline !== null ? stats.offline.toLocaleString() : '—'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chart: distribution */}
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-white/40">Activity split</p>
+                    <p className="text-xs text-white/35">{onlinePct}% online</p>
+                  </div>
+
+                  {/* Stacked bar */}
+                  <div className="h-3 rounded-full overflow-hidden bg-white/10 flex mb-5">
+                    <div
+                      className="h-full bg-white transition-all duration-1000"
+                      style={{ width: `${onlinePct}%` }}
+                    />
+                    <div
+                      className="h-full bg-white/25 transition-all duration-1000"
+                      style={{ width: `${offlinePct}%` }}
+                    />
+                  </div>
+
+                  {/* Horizontal comparison bars */}
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Members', value: total, tone: 'bg-white' },
+                      { label: 'Online', value: online, tone: 'bg-white/80' },
+                      { label: 'Offline', value: offline, tone: 'bg-white/35' },
+                    ].map((row) => (
+                      <div key={row.label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-white/45">{row.label}</span>
+                          <span className="text-white/70 tabular-nums">
+                            {row.value ? row.value.toLocaleString() : '—'}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${row.tone} transition-all duration-1000`}
+                            style={{ width: `${Math.max((row.value / maxBar) * 100, row.value ? 2 : 0)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <a
+                  href={DISCORD_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white text-black px-6 py-3 text-sm font-medium tracking-wide hover:bg-white/90 transition-colors"
+                >
+                  <DiscordIcon className="w-4 h-4" />
+                  Join Discord ↗
+                </a>
+              </motion.div>
+
+              {/* Staff */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.18, duration: 0.55 }}
+                className="liquid-glass rounded-3xl p-6 sm:p-8"
+              >
+                <p className="text-[10px] tracking-[0.25em] uppercase text-white/40 mb-2">Team</p>
+                <h3 className="font-serif text-2xl sm:text-3xl italic text-white mb-2">Assistants</h3>
+                <p className="text-sm text-white/45 font-light mb-8">
+                  Tap a person to open their Discord profile.
+                </p>
+
+                <ul className="space-y-3">
+                  {STAFF.map((person, i) => {
+                    const profileUrl = person.id
+                      ? `https://discord.com/users/${person.id}`
+                      : DISCORD_URL;
+                    let avatarUrl = person.avatar || null;
+                    if (!avatarUrl && person.id) {
+                      try {
+                        const idx = Number((BigInt(person.id) >> 22n) % 6n);
+                        avatarUrl = `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
+                      } catch (e) {
+                        avatarUrl = null;
+                      }
+                    }
+
+                    return (
+                      <li key={`${person.username}-${i}`}>
+                        <a
+                          href={profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 hover:border-white/25 hover:bg-white/[0.05] transition-colors group"
+                        >
+                          <div className="w-12 h-12 rounded-full overflow-hidden border border-white/15 bg-[#111] shrink-0 flex items-center justify-center">
+                            {avatarUrl ? (
+                              <img
+                                src={avatarUrl}
+                                alt={person.display || person.username}
+                                className="w-full h-full object-cover img-mono"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <span
+                              className="font-serif text-lg italic text-white/50"
+                              style={{ display: avatarUrl ? 'none' : 'flex' }}
+                            >
+                              {(person.display || person.username || '?').charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-white truncate group-hover:text-white">
+                              {person.display || person.username}
+                            </p>
+                            <p className="text-xs text-white/40 mt-0.5 truncate">@{person.username}</p>
+                          </div>
+                          <span className="text-[10px] tracking-[0.12em] uppercase text-white/35 border border-white/12 rounded-full px-2.5 py-1 shrink-0">
+                            {person.role || 'Staff'}
+                          </span>
+                          <span className="text-white/30 group-hover:text-white/60 transition-colors text-sm">↗</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Final CTA ─── */
+    function FinalCTA() {
+      const ref = useRef(null);
+      const inView = useInView(ref, { once: true, margin: '-80px' });
+      return (
+        <section className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <FadingVideo src={VIDEOS.final} lazy />
+            <div className="absolute inset-0 bg-black/65" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-3xl px-6 text-center" ref={ref}>
+            <motion.h2 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }} animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}} transition={{ duration: 0.8 }} className="font-serif text-3xl sm:text-5xl md:text-6xl italic text-white tracking-tight">
+              See what we build next.
+            </motion.h2>
+            <motion.p initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay: 0.12 }} className="mt-5 text-white/55 font-light text-base sm:text-lg">
+              More projects are already in development.
+            </motion.p>
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay: 0.22 }} className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a href="#projects" className="inline-flex items-center gap-2 rounded-full bg-white text-black px-7 py-3.5 text-sm font-medium tracking-wide hover:bg-white/90 transition-colors">Explore Projects</a>
+              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full liquid-glass px-7 py-3.5 text-sm font-medium tracking-wide text-white hover:bg-white/10 transition-colors">Join Discord</a>
+            </motion.div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── Footer ─── */
+    function Footer() {
+      return (
+        <footer className="relative border-t border-white/10 bg-[#000] py-14 sm:py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-10">
+              <div>
+                <p className="font-serif text-xl text-white tracking-wide">NEO STUDIO</p>
+                <p className="mt-1 text-[10px] tracking-[0.25em] uppercase text-white/40">By MITTO</p>
+                <p className="mt-4 text-sm text-white/40 font-light max-w-xs">BUILD. CREATE. EVOLVE.</p>
+              </div>
+              <div className="flex flex-wrap gap-x-10 gap-y-6">
+                <div>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/30 mb-3">Navigate</p>
+                  <ul className="space-y-2">
+                    {['Home', 'Profile', 'Projects', 'Community', 'About', 'Studio'].map((label) => (
+                      <li key={label}><a href={`#${label.toLowerCase()}`} className="text-sm text-white/55 hover:text-white transition-colors">{label}</a></li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/30 mb-3">Community</p>
+                  <ul className="space-y-2">
+                    <li><a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-white/55 hover:text-white transition-colors">Discord</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/30 mb-3">Projects</p>
+                  <ul className="space-y-2">
+                    {['Neo-EVADE', 'Neo-FATS', 'Neo-Blade-Ball', 'Neo-Universal'].map((name) => (
+                      <li key={name}><a href="#projects" className="text-sm text-white/55 hover:text-white transition-colors">{name}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="mt-12 pt-8 border-t border-white/8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-xs text-white/30">© 2026 Neo Studio. All rights reserved.</p>
+              <p className="text-xs text-white/25 tracking-wide">Independent creative technology studio</p>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    function App() {
+      return (
+        <div className="min-h-screen bg-black text-white font-sans">
+          <Navbar />
+          <main>
+            <Hero />
+            <Stats />
+            <ProfileBanner />
+            <Projects />
+            <About />
+            <Process />
+            <CinematicBreak />
+            <CommunitySection />
+            <FinalCTA />
+          </main>
+          <Footer />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
